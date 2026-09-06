@@ -35,6 +35,7 @@
     --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --radius: 7px;
     --sticky-head-h: 150px;
+    --kpis-h: 90px;
     --seg-panel-h: 90px;
     --filterbar-h: 60px;
   }
@@ -137,7 +138,9 @@
 
   /* ---------- KPI strip ---------- */
   .kpis{
-    display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:0;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:0;
+    position:sticky; top:var(--sticky-head-h); z-index:36;
+    background:var(--bg); padding-bottom:12px;
   }
   .kpi{
     background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
@@ -172,7 +175,8 @@
   .panel h2{ margin:0 0 4px; font-size:14.5px; font-weight:640; color:var(--text); }
   .panel .sub{ margin:0 0 14px; color:var(--text-dim); font-size:12.5px; }
   .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; }
-  .chev{ color:var(--text-faint); font-size:12px; transition:transform .15s; flex:none; }
+  .chev{ color:var(--text-faint); transition:transform .15s; flex:none; display:inline-flex; align-items:center; justify-content:center; }
+  .chev svg{ width:13px; height:13px; display:block; }
   .panel.collapsed .chev{ transform:rotate(-90deg); }
   .panel.collapsed .panel-body{ display:none; }
   .panel-body{ margin-top:14px; }
@@ -183,7 +187,7 @@
   #seg-subtitle{ margin:3px 0 0; }
   .panel.collapsed #seg-subtitle{ display:none; }
   .seg-head-row .view-strip{ margin-top:0; flex:1 1 auto; justify-content:flex-end; }
-  #seg-panel{ position:sticky; top:var(--sticky-head-h); z-index:32; margin:0; }
+  #seg-panel{ position:sticky; top:calc(var(--sticky-head-h) + var(--kpis-h)); z-index:32; margin:0; }
 
   /* ---------- segmentador ---------- */
   .seg-table{ width:100%; border-collapse:collapse; font-size:13px; }
@@ -215,7 +219,7 @@
   /* ---------- filter bar ---------- */
   .filterbar{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h)); z-index:26;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--kpis-h) + var(--seg-panel-h)); z-index:26;
     background:var(--bg); padding:11px 0 13px; margin:0;
     border-bottom:1px solid var(--border-soft);
   }
@@ -225,6 +229,11 @@
   }
   .search-input::placeholder{ color:var(--text-faint); }
   .search-input:focus{ outline:none; border-color:var(--accent); }
+
+  .actions-menu-wrap{ display:flex; position:relative; }
+  .actions-menu-btn{ display:none; }
+  .actions-menu-btn svg{ width:18px; height:18px; display:block; }
+  .actions-dropdown{ display:flex; align-items:center; gap:10px; }
 
   .chip{
     appearance:none; cursor:pointer; font:inherit; font-size:12px; font-weight:600;
@@ -271,7 +280,7 @@
     text-align:center; background:var(--panel-3); color:var(--text-dim);
     font-weight:600; font-size:10.5px; letter-spacing:.015em; padding:8px 6px; border-bottom:1px solid var(--border);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle;
-    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + var(--filterbar-h)); z-index:20;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--kpis-h) + var(--seg-panel-h) + var(--filterbar-h)); z-index:20;
   }
   table.data tbody td{
     padding:8px 8px; border-bottom:1px solid var(--border-soft); vertical-align:middle; color:var(--text);
@@ -402,20 +411,54 @@
   }
   @media (max-width:720px){
     .shell{ padding:14px 14px 40px; }
-    .topbar{ flex-direction:column; align-items:flex-start; gap:12px; }
-    .brand{ margin-left:0; }
-    .brand p{ max-width:none; }
-    .topbar-right{ width:100%; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
-    .theme-toggle{ margin-right:0; }
+
+    /* 1) Encabezado: solo eyebrow + h1; se ocultan descripción y meta */
+    .brand p{ display:none; }
+    .topbar-meta{ display:none; }
+
+    /* 2) Encabezado sigue en fila (alineado con el título), sticky, compacto */
+    .topbar{ flex-direction:row; align-items:center; gap:8px; padding-bottom:10px; }
+    .brand{ margin-left:8px; min-width:0; flex:1 1 auto; }
+    .brand h1{ font-size:15.5px; line-height:1.25; }
+    .brand-eyebrow{ font-size:8.5px; }
+    .topbar-right{ width:auto; flex:none; gap:6px; }
+    .header-upload-btn{ padding:7px 9px; }
+    .header-upload-btn svg{ width:16px; height:16px; }
+    .theme-toggle{ padding:7px; margin-right:0; }
+    .theme-toggle svg{ width:15px; height:15px; }
     .upload-dropdown{ width:auto; left:0; right:0; max-width:none; }
 
-    .kpis{ grid-template-columns:repeat(2,1fr); }
+    /* 3) Tarjetas de totales y "Facturas a ingresar" dejan de ser sticky:
+       se desplazan con el contenido, igual que el resto de la página.
+       La barra de filtros y el encabezado de tabla conservan su sticky,
+       ahora anclados justo debajo del encabezado compacto. */
+    .kpis{ position:static; grid-template-columns:repeat(2,1fr); padding-bottom:0; margin-bottom:12px; }
+    #seg-panel{ position:static; margin:0 0 14px; }
+    .filterbar{ top:var(--sticky-head-h); }
+    table.data thead th{ top:calc(var(--sticky-head-h) + var(--filterbar-h)); }
 
+    /* Chevron de "Facturas a ingresar": más visible, alineado con el título */
+    #seg-chev{
+      width:26px; height:26px; border-radius:50%;
+      background:var(--accent); color:var(--accent-ink);
+      align-self:flex-start; margin-top:1px;
+    }
+    #seg-chev svg{ width:14px; height:14px; }
     .seg-head-row{ align-items:flex-start; }
     .view-strip{ width:100%; }
 
     .filterbar{ align-items:stretch; }
     .search-input{ flex:1 1 100%; }
+
+    /* 4) Restablecer + los dos Exportar se agrupan en un menú oculto */
+    .actions-menu-btn{ display:inline-flex; align-items:center; justify-content:center; padding:8px 10px; }
+    .actions-dropdown{
+      display:none; flex-direction:column; align-items:stretch; gap:8px;
+      position:absolute; top:calc(100% + 8px); right:0; z-index:32;
+      background:var(--panel); border:1px solid var(--border); border-radius:8px;
+      padding:10px; box-shadow:0 24px 46px -18px rgba(0,0,0,.7); min-width:210px;
+    }
+    .actions-dropdown.open{ display:flex; }
 
     /* Tablas densas: en vez de comprimir columnas hasta ser ilegibles,
        se habilita scroll horizontal solo en pantallas angostas. */
@@ -426,7 +469,8 @@
   @media (max-width:480px){
     .kpis{ grid-template-columns:repeat(2,1fr); gap:6px; }
     .kpi{ padding:9px 10px; }
-    .brand h1{ font-size:16px; }
+    .brand h1{ font-size:14px; }
+    .brand-eyebrow{ font-size:8px; }
     .btn{ padding:8px 11px; font-size:12px; }
     .filterbar .btn{ flex:1 1 auto; }
   }
@@ -521,9 +565,9 @@
         </button>
       </div>
     </div>
-
-    <div class="kpis" id="kpi-strip"></div>
   </div>
+
+  <div class="kpis" id="kpi-strip"></div>
 
   <!-- ===================== TAB: COMPARACIÓN ===================== -->
   <div class="tabpanel active" id="tab-comparacion">
@@ -535,7 +579,9 @@
           <p class="sub" id="seg-subtitle">Agrupa las órdenes de compra que llegaron juntas en una misma factura/embarque del proveedor.</p>
         </div>
         <div class="view-strip" id="view-strip"></div>
-        <span class="chev" id="seg-chev">▾</span>
+        <span class="chev" id="seg-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </span>
       </div>
       <div class="panel-body">
         <div class="seg-hint" id="seg-no-folios-hint" style="display:none;">Aún no hay folios registrados. Ve al bloque "Cargar archivos" y agrega el folio de cada factura para poder asignarlas aquí.</div>
@@ -558,9 +604,16 @@
       <div class="chip active" data-status="no_encontrado_inv"><span class="dot"></span>No encontrado</div>
       <div class="chip" data-status="rep" title="Mostrar solo códigos capturados que aparecen en más de una orden de compra"><span class="dot"></span>Rep</div>
       <div class="spacer"></div>
-      <button class="btn violet" id="btn-reset">Restablecer</button>
-      <button class="btn amber" id="btn-export-all">Exportar por factura</button>
-      <button class="btn primary" id="btn-export">Exportar vista actual</button>
+      <div class="actions-menu-wrap" id="actions-menu-wrap">
+        <button class="btn ghost actions-menu-btn" id="btn-actions-toggle" title="Más acciones" aria-label="Más acciones">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="12" cy="19" r="1.9"></circle></svg>
+        </button>
+        <div class="actions-dropdown" id="actions-dropdown">
+          <button class="btn violet" id="btn-reset">Restablecer</button>
+          <button class="btn amber" id="btn-export-all">Exportar por factura</button>
+          <button class="btn primary" id="btn-export">Exportar vista actual</button>
+        </div>
+      </div>
     </div>
 
     <div class="table-wrap">
@@ -1164,9 +1217,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   function updateStickyOffsets(){
     const head = document.querySelector('.sticky-head');
+    const kpisEl = document.getElementById('kpi-strip');
     const seg = document.getElementById('seg-panel');
     const bar = document.querySelector('.filterbar');
     if (head) document.documentElement.style.setProperty('--sticky-head-h', outerH(head) + 'px');
+    if (kpisEl) document.documentElement.style.setProperty('--kpis-h', outerH(kpisEl) + 'px');
     if (seg) document.documentElement.style.setProperty('--seg-panel-h', outerH(seg) + 'px');
     if (bar && bar.offsetParent !== null) {
       document.documentElement.style.setProperty('--filterbar-h', outerH(bar) + 'px');
@@ -1175,7 +1230,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   window.addEventListener('resize', updateStickyOffsets);
   if (typeof window.ResizeObserver === 'function'){
     const ro = new ResizeObserver(() => raf(updateStickyOffsets));
-    ['sticky-head','seg-panel'].forEach(id => {
+    ['sticky-head','kpi-strip','seg-panel'].forEach(id => {
       const el = document.getElementById(id);
       if (el) ro.observe(el);
     });
@@ -1469,6 +1524,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   document.getElementById('btn-toggle-upload').addEventListener('click', (e) => {
     e.stopPropagation();
+    closeActionsDropdown();
     document.getElementById('upload-dropdown').classList.toggle('open');
   });
   document.getElementById('upload-dropdown').addEventListener('click', (e) => e.stopPropagation());
@@ -1479,7 +1535,27 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeUploadDropdown();
+    if (e.key === 'Escape'){ closeUploadDropdown(); closeActionsDropdown(); }
+  });
+
+  /* ============ menú de acciones (Restablecer / Exportar) en móvil ============ */
+  function closeActionsDropdown(){
+    document.getElementById('actions-dropdown').classList.remove('open');
+  }
+  document.getElementById('btn-actions-toggle').addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeUploadDropdown();
+    document.getElementById('actions-dropdown').classList.toggle('open');
+  });
+  document.getElementById('actions-dropdown').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (e.target.closest('button')) closeActionsDropdown();
+  });
+  document.addEventListener('click', (e) => {
+    const ad = document.getElementById('actions-dropdown');
+    if (ad.classList.contains('open') && e.target !== document.getElementById('btn-actions-toggle')){
+      closeActionsDropdown();
+    }
   });
 
   /* ============ modo oscuro / claro ============ */
