@@ -113,7 +113,6 @@
   .topbar-meta b{ color:var(--text-dim); font-weight:600; }
 
   /* ---------- menú desplegable de carga de archivos ---------- */
-  .topbar-right{ position:relative; }
   .header-upload-btn{
     white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
     padding:9px 12px;
@@ -181,12 +180,13 @@
   .panel.collapsed .panel-body{ display:none; }
   .panel-body{ margin-top:14px; }
 
-  /* ---------- encabezado del segmentador (título + píldoras en el mismo renglón) ---------- */
-  .seg-head-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; cursor:pointer; flex-wrap:wrap; }
-  .seg-head-title{ flex:1 1 220px; min-width:0; }
+  /* ---------- encabezado del segmentador (título + botón en el mismo renglón, píldoras debajo) ---------- */
+  .seg-head-row{ cursor:pointer; }
+  .seg-head-top{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
+  .seg-head-title{ flex:1 1 auto; min-width:0; }
   #seg-subtitle{ margin:3px 0 0; }
   .panel.collapsed #seg-subtitle{ display:none; }
-  .seg-head-row .view-strip{ margin-top:0; flex:1 1 auto; justify-content:flex-end; }
+  .seg-head-row .view-strip{ margin-top:12px; flex:none; justify-content:flex-start; }
   #seg-panel{ position:sticky; top:calc(var(--sticky-head-h) + var(--kpis-h)); z-index:32; margin:0; }
 
   /* ---------- segmentador ---------- */
@@ -437,14 +437,12 @@
     .filterbar{ top:var(--sticky-head-h); }
     table.data thead th{ top:calc(var(--sticky-head-h) + var(--filterbar-h)); }
 
-    /* Chevron de "Facturas a ingresar": más visible, alineado con el título */
+    /* Chevron de "Facturas a ingresar": más visible, alineado con el título, -15% de diámetro */
     #seg-chev{
-      width:26px; height:26px; border-radius:50%;
+      width:22px; height:22px; border-radius:50%;
       background:var(--accent); color:var(--accent-ink);
-      align-self:flex-start; margin-top:1px;
     }
-    #seg-chev svg{ width:14px; height:14px; }
-    .seg-head-row{ align-items:flex-start; }
+    #seg-chev svg{ width:12px; height:12px; }
     .view-strip{ width:100%; }
 
     .filterbar{ align-items:stretch; }
@@ -461,10 +459,38 @@
     .actions-dropdown.open{ display:flex; }
 
     /* Tablas densas: en vez de comprimir columnas hasta ser ilegibles,
-       se habilita scroll horizontal solo en pantallas angostas. */
+       se habilita scroll horizontal solo en pantallas angostas, con
+       anchos fijos por columna (todas excepto Descripción y OC quedan
+       con el ancho justo para mostrar su contenido completo) y las
+       columnas 1 y 2 fijas al desplazar de izquierda a derecha. */
     .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    table.data{ min-width:760px; }
     .seg-table{ min-width:540px; }
+
+    table.data{ min-width:1160px; width:1160px; }
+    table.data colgroup col:nth-child(1){ width:145px !important; }
+    table.data colgroup col:nth-child(2){ width:55px !important; }
+    table.data colgroup col:nth-child(3){ width:75px !important; }
+    table.data colgroup col:nth-child(4){ width:210px !important; }
+    table.data colgroup col:nth-child(5){ width:55px !important; }
+    table.data colgroup col:nth-child(6){ width:150px !important; }
+    table.data colgroup col:nth-child(7){ width:55px !important; }
+    table.data colgroup col:nth-child(8){ width:80px !important; }
+    table.data colgroup col:nth-child(9){ width:85px !important; }
+    table.data colgroup col:nth-child(10){ width:90px !important; }
+    table.data colgroup col:nth-child(11){ width:65px !important; }
+    table.data colgroup col:nth-child(12){ width:95px !important; }
+
+    /* columnas 1 (No. Inv.) y 2 (Id) fijas al desplazar horizontalmente */
+    table.data th:nth-child(1), table.data td:nth-child(1),
+    table.data th:nth-child(2), table.data td:nth-child(2){
+      position:sticky; z-index:15;
+    }
+    table.data td:nth-child(1), table.data td:nth-child(2){ background:var(--panel); }
+    table.data th:nth-child(1), table.data th:nth-child(2){ background:var(--panel-3); z-index:25; }
+    table.data th:nth-child(1), table.data td:nth-child(1){ left:0; }
+    table.data th:nth-child(2), table.data td:nth-child(2){
+      left:145px; box-shadow:4px 0 8px -4px rgba(0,0,0,.4);
+    }
   }
   @media (max-width:480px){
     .kpis{ grid-template-columns:repeat(2,1fr); gap:6px; }
@@ -574,14 +600,16 @@
 
     <div class="panel" id="seg-panel">
       <div class="seg-head-row" id="seg-toggle">
-        <div class="seg-head-title">
-          <h2>Facturas a ingresar</h2>
-          <p class="sub" id="seg-subtitle">Agrupa las órdenes de compra que llegaron juntas en una misma factura/embarque del proveedor.</p>
+        <div class="seg-head-top">
+          <div class="seg-head-title">
+            <h2>Facturas a ingresar</h2>
+            <p class="sub" id="seg-subtitle">Agrupa las órdenes de compra que llegaron juntas en una misma factura/embarque del proveedor.</p>
+          </div>
+          <span class="chev" id="seg-chev">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
         </div>
         <div class="view-strip" id="view-strip"></div>
-        <span class="chev" id="seg-chev">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </span>
       </div>
       <div class="panel-body">
         <div class="seg-hint" id="seg-no-folios-hint" style="display:none;">Aún no hay folios registrados. Ve al bloque "Cargar archivos" y agrega el folio de cada factura para poder asignarlas aquí.</div>
