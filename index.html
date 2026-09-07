@@ -303,8 +303,8 @@
   .muted{ color:var(--text-faint); }
 
   .badge{
-    display:inline-flex; align-items:center; gap:5px; padding:3px 8px; border-radius:20px;
-    font-size:11px; font-weight:650; white-space:nowrap;
+    display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:3px 9px; border-radius:20px;
+    font-size:11px; font-weight:700; white-space:nowrap; min-width:24px;
   }
   .badge.correcto{ background:var(--ok-bg); color:var(--ok); }
   .badge.faltante{ background:var(--falt-bg); color:var(--falt); }
@@ -461,10 +461,21 @@
     /* Tablas densas: en vez de comprimir columnas hasta ser ilegibles,
        se habilita scroll horizontal solo en pantallas angostas, con
        anchos fijos por columna (todas excepto Descripción y OC quedan
-       con el ancho justo para mostrar su contenido completo) y las
-       columnas 1 y 2 fijas al desplazar de izquierda a derecha. */
-    .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+       con el ancho justo para mostrar su contenido completo).
+
+       La tabla principal se convierte en su propio contenedor con
+       scroll (vertical + horizontal): el navegador, al activar
+       overflow-x en el wrapper, obliga a overflow-y a comportarse
+       también como scroll interno, así que el sticky del encabezado
+       ya NO puede anclarse a la página — debe anclarse al wrapper.
+       Por eso aquí el thead usa top:0 (relativo a sí mismo) en vez
+       de la fórmula de offsets de la página. */
     .seg-table{ min-width:540px; }
+    .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    #tab-comparacion > .table-wrap{
+      overflow:auto; -webkit-overflow-scrolling:touch;
+      max-height:64vh;
+    }
 
     table.data{ min-width:1160px; width:1160px; }
     table.data colgroup col:nth-child(1){ width:145px !important; }
@@ -480,17 +491,24 @@
     table.data colgroup col:nth-child(11){ width:65px !important; }
     table.data colgroup col:nth-child(12){ width:95px !important; }
 
-    /* columnas 1 (No. Inv.) y 2 (Id) fijas al desplazar horizontalmente */
-    table.data th:nth-child(1), table.data td:nth-child(1),
-    table.data th:nth-child(2), table.data td:nth-child(2){
-      position:sticky; z-index:15;
+    table.data thead th{ top:0; }
+
+    /* solo la columna 1 (No. Inv.) queda fija al desplazar horizontalmente */
+    table.data th:nth-child(1), table.data td:nth-child(1){
+      position:sticky; left:0; z-index:15;
+      box-shadow:4px 0 8px -4px rgba(0,0,0,.4);
     }
-    table.data td:nth-child(1), table.data td:nth-child(2){ background:var(--panel); }
-    table.data th:nth-child(1), table.data th:nth-child(2){ background:var(--panel-3); z-index:25; }
-    table.data th:nth-child(1), table.data td:nth-child(1){ left:0; }
-    table.data th:nth-child(2), table.data td:nth-child(2){
-      left:145px; box-shadow:4px 0 8px -4px rgba(0,0,0,.4);
-    }
+    table.data td:nth-child(1){ background:var(--panel); }
+    table.data th:nth-child(1){ background:var(--panel-3); z-index:25; }
+
+    /* ---- Resumen & hallazgos: mismos criterios que la página principal
+       (ocultar textos largos de soporte, aprovechar el espacio) ---- */
+    .panel{ padding:14px 15px; margin-bottom:12px; }
+    .grid-2{ gap:12px; }
+    #tab-resumen .panel .sub{ display:none; }
+    #tab-resumen .panel h2{ margin-bottom:10px; }
+    .mini-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .mini-table{ min-width:420px; }
   }
   @media (max-width:480px){
     .kpis{ grid-template-columns:repeat(2,1fr); gap:6px; }
@@ -912,6 +930,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     correcto:'Correcto', faltante:'Faltante', sobrante:'Sobrante',
     no_encontrado_inv:'No encontrado', no_encontrado_oc:'No encontrado (sin OC)'
   };
+  const STATUS_LABEL_SHORT = {
+    correcto:'OK', faltante:'-', sobrante:'+',
+    no_encontrado_inv:'NE', no_encontrado_oc:'NE'
+  };
   function esc(s){
     return String(s===undefined||s===null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
@@ -1094,7 +1116,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<td class="num">' + fmt(agg.totalInv) + '</td>' +
         '<td class="num"><input class="qty-input' + (isEdited?' edited':'') + '" type="number" min="0" step="1" data-line-id="' + l.id + '" value="' + qty + '"></td>' +
         '<td class="num">' + fmtDiff(agg.diff) + '</td>' +
-        '<td><span class="badge ' + status + '">' + STATUS_LABEL[status] + '</span></td>' +
+        '<td><span class="badge ' + status + '" title="' + esc(STATUS_LABEL[status]) + '">' + STATUS_LABEL_SHORT[status] + '</span></td>' +
         '</tr>';
     }).join('');
 
@@ -1124,7 +1146,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return '<div style="margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border-soft);">' +
         '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">' +
           '<span class="mono" style="font-weight:650;">' + esc(a.sku) + '</span>' +
-          '<span class="badge ' + a.status + '">' + STATUS_LABEL[a.status] + '</span>' +
+          '<span class="badge ' + a.status + '" title="' + esc(STATUS_LABEL[a.status]) + '">' + STATUS_LABEL_SHORT[a.status] + '</span>' +
           '<span class="muted" style="font-size:11.5px;">capturado ' + fmt(a.totalInv) + ' · ordenado ' + fmt(a.totalOrd) + '</span>' +
         '</div>' +
         '<div class="muted" style="font-size:12px; margin-bottom:6px;">' + esc(a.descripcion) + '</div>' +
