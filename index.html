@@ -19,6 +19,7 @@
     --accent:#4fb8e8;
     --accent-2:#2e97c9;
     --accent-ink:#06222c;
+    --accent-bg:rgba(79,184,232,.16);
     --warn:#f0a83b;
     --ok:#3fbf8f;
     --ok-bg:rgba(63,191,143,.13);
@@ -53,6 +54,7 @@
     --accent:#1f8fc4;
     --accent-2:#166f9c;
     --accent-ink:#ffffff;
+    --accent-bg:rgba(31,143,196,.14);
     --warn:#b9791f;
     --ok:#188a5e;
     --ok-bg:rgba(24,138,94,.12);
@@ -96,7 +98,7 @@
 
   .topbar{
     display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
-    padding-bottom:14px; margin-bottom:12px;
+    padding-bottom:14px; margin-bottom:2px;
     border-bottom:1px solid var(--border);
   }
   .brand{ margin-left:14px; }
@@ -137,9 +139,8 @@
 
   /* ---------- KPI strip ---------- */
   .kpis{
-    display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:0;
-    position:sticky; top:var(--sticky-head-h); z-index:36;
-    background:var(--bg); padding-bottom:12px;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
+    margin:0 0 14px;
   }
   .kpi{
     background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
@@ -193,7 +194,7 @@
     background:var(--accent); color:var(--accent-ink);
   }
   #seg-chev svg{ width:12px; height:12px; display:block; }
-  #seg-panel{ position:sticky; top:calc(var(--sticky-head-h) + var(--kpis-h)); z-index:32; margin:0; }
+  #seg-panel{ position:sticky; top:var(--sticky-head-h); z-index:32; margin:0; }
 
   /* ---------- segmentador ---------- */
   .seg-table{ width:100%; border-collapse:collapse; font-size:13px; }
@@ -225,7 +226,7 @@
   /* ---------- filter bar ---------- */
   .filterbar{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    position:sticky; top:calc(var(--sticky-head-h) + var(--kpis-h) + var(--seg-panel-h)); z-index:26;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h)); z-index:26;
     background:var(--bg); padding:11px 0 13px; margin:0;
     border-bottom:1px solid var(--border-soft);
   }
@@ -290,7 +291,7 @@
     text-align:center; background:var(--panel-3); color:var(--text-dim);
     font-weight:600; font-size:10.5px; letter-spacing:.015em; padding:8px 6px; border-bottom:1px solid var(--border);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:middle;
-    position:sticky; top:calc(var(--sticky-head-h) + var(--kpis-h) + var(--seg-panel-h) + var(--filterbar-h)); z-index:20;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + var(--filterbar-h)); z-index:20;
   }
   table.data tbody td{
     padding:8px 8px; border-bottom:1px solid var(--border-soft); vertical-align:middle; color:var(--text);
@@ -438,11 +439,12 @@
     .theme-toggle svg{ width:15px; height:15px; }
     .upload-dropdown{ width:auto; left:0; right:0; max-width:none; }
 
-    /* 3) Tarjetas de totales y "Facturas a ingresar" dejan de ser sticky:
-       se desplazan con el contenido, igual que el resto de la página.
-       La barra de filtros y el encabezado de tabla conservan su sticky,
-       ahora anclados justo debajo del encabezado compacto. */
-    .kpis{ position:static; grid-template-columns:repeat(2,1fr); padding-bottom:0; margin-bottom:12px; }
+    /* 3) "Facturas a ingresar" deja de ser sticky en móvil: se desplaza
+       con el contenido, igual que el resto de la página (las tarjetas
+       de totales ya no son sticky en ninguna modalidad). La barra de
+       filtros y el encabezado de tabla conservan su sticky, ahora
+       anclados justo debajo del encabezado compacto. */
+    .kpis{ grid-template-columns:repeat(2,1fr); margin-bottom:12px; }
     #seg-panel{ position:static; margin:0 0 14px; }
     .filterbar{ top:var(--sticky-head-h); }
     table.data thead th{ top:calc(var(--sticky-head-h) + var(--filterbar-h)); }
@@ -453,8 +455,9 @@
        línea que usa el modo escritorio. */
     .seg-head-row{ display:block; }
     .seg-head-top{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
-    .view-strip{ width:100%; margin-top:12px; order:initial; justify-content:flex-start; flex:none; }
+    .view-strip{ width:100%; margin-top:22px; order:initial; justify-content:flex-start; flex:none; }
     #seg-chev{ order:initial; }
+    .panel-body{ margin-top:4px; }
 
     .filterbar{ align-items:stretch; }
     .search-input{ flex:1 1 100%; }
@@ -465,14 +468,13 @@
     .status-menu-wrap{ display:block; position:relative; }
     .status-menu-btn{
       display:inline-flex; align-items:center; justify-content:center;
-      padding:8px 14px; border:none; color:#fff; font-weight:700;
-      text-shadow:0 1px 3px rgba(0,0,0,.55);
+      padding:8px 14px; border:1px solid var(--border); color:var(--text); font-weight:700;
       background:linear-gradient(90deg,
-        var(--ok) 0%, var(--ok) 20%,
-        var(--sobra) 20%, var(--sobra) 40%,
-        var(--falt) 40%, var(--falt) 60%,
-        var(--noenc) 60%, var(--noenc) 80%,
-        var(--accent) 80%, var(--accent) 100%);
+        var(--ok-bg) 0%, var(--ok-bg) 20%,
+        var(--sobra-bg) 20%, var(--sobra-bg) 40%,
+        var(--falt-bg) 40%, var(--falt-bg) 60%,
+        var(--noenc-bg) 60%, var(--noenc-bg) 80%,
+        var(--accent-bg) 80%, var(--accent-bg) 100%);
     }
     .status-dropdown{
       display:none; flex-direction:column; align-items:stretch; gap:8px;
@@ -482,6 +484,9 @@
     }
     .status-dropdown.open{ display:flex; }
     .status-dropdown .chip{ width:100%; }
+
+    /* Resumen & hallazgos solo disponible en modo escritorio */
+    .dd-tabbar .tabbtn[data-tab="resumen"]{ display:none; }
 
     /* 4) Restablecer + los dos Exportar se agrupan en un menú oculto */
     .actions-menu-btn{ display:inline-flex; align-items:center; justify-content:center; padding:8px 10px; }
@@ -510,6 +515,11 @@
     #tab-comparacion > .table-wrap{
       overflow:auto; -webkit-overflow-scrolling:touch;
       max-height:64vh;
+      /* Aísla el contexto de apilamiento de la tabla para que su
+         encabezado sticky (y la columna fija) siempre se dibujen por
+         encima de las filas, sin quedar por debajo de los bloques
+         sticky de la página (encabezado / barra de filtros). */
+      position:relative; isolation:isolate;
     }
 
     table.data{ min-width:1160px; width:1160px; }
@@ -1318,6 +1328,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
   }
   window.addEventListener('resize', updateStickyOffsets);
+
+  /* "Resumen & hallazgos" solo disponible en escritorio: si la ventana
+     se reduce a ancho móvil mientras esa pestaña está activa, se
+     regresa a "Comparación" (el botón para volver a Resumen se oculta
+     por CSS en ese ancho). */
+  function enforceMobileTabRestriction(){
+    if (window.innerWidth <= 720 && document.getElementById('tab-resumen').classList.contains('active')){
+      const cmpBtn = document.querySelector('.tabbtn[data-tab="comparacion"]');
+      if (cmpBtn) cmpBtn.click();
+    }
+  }
+  window.addEventListener('resize', enforceMobileTabRestriction);
+
   if (typeof window.ResizeObserver === 'function'){
     const ro = new ResizeObserver(() => raf(updateStickyOffsets));
     ['sticky-head','kpi-strip','seg-panel'].forEach(id => {
@@ -1700,6 +1723,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   /* ============ init ============ */
   rebuildDerived();
   renderAll();
+  enforceMobileTabRestriction();
 
 })();
 </script>
