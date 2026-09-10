@@ -195,7 +195,10 @@
     background:var(--accent); color:var(--accent-ink);
   }
   #seg-chev svg{ width:12px; height:12px; display:block; }
-  #seg-panel{ position:sticky; top:var(--sticky-head-h); z-index:32; margin:0; }
+  #seg-panel{
+    position:sticky; top:calc(var(--sticky-head-h) + 5px); z-index:32; margin:0;
+    box-shadow:0 14px 22px -18px rgba(0,0,0,.65);
+  }
 
   /* ---------- segmentador ---------- */
   .seg-table{ width:100%; border-collapse:collapse; font-size:13px; }
@@ -227,7 +230,7 @@
   /* ---------- filter bar ---------- */
   .filterbar{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h)); z-index:26;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + 5px); z-index:26;
     background:var(--bg); padding:11px 0 13px; margin:0;
     border-bottom:1px solid var(--border-soft);
   }
@@ -299,7 +302,7 @@
      de búsqueda / estado / exportación — así nunca queda atrapado
      dentro de un contexto de scroll que rompa su posición fija. */
   .table-head-wrap{
-    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + var(--filterbar-h)); z-index:20;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + var(--filterbar-h) + 5px); z-index:20;
     overflow-x:hidden; overflow-y:hidden;
     border:1px solid var(--border); border-bottom:none; border-radius:var(--radius) var(--radius) 0 0;
     background:var(--panel-3);
@@ -427,9 +430,9 @@
     width:18px; height:18px; border-radius:50%; cursor:pointer; font-size:12px; line-height:1; padding:0;
   }
   .folio-remove:hover{ color:var(--falt); background:var(--falt-bg); }
-  .seg-hint{
-    font-size:12px; color:var(--text-faint); background:var(--panel-2); border:1px dashed var(--border);
-    padding:9px 12px; border-radius:6px; margin-bottom:12px;
+  .seg-inline-hint{
+    font-size:12px; color:var(--text-faint); align-self:center;
+    margin-left:12px; /* + gap:8px del contenedor = 20px de separación con la píldora TOC */
   }
 
   /* ==================================================================
@@ -450,6 +453,7 @@
 
     /* 2) Encabezado sigue en fila (alineado con el título), sticky, compacto */
     .topbar{ flex-direction:row; align-items:center; gap:8px; padding-bottom:10px; }
+    .sticky-head{ padding-bottom:7px; }
     .brand{ margin-left:8px; min-width:0; flex:1 1 auto; }
     .brand h1{ font-size:15.5px; line-height:1.25; }
     .brand-eyebrow{ font-size:8.5px; }
@@ -466,9 +470,9 @@
        filtros y el encabezado de tabla conservan su sticky, ahora
        anclados justo debajo del encabezado compacto. */
     .kpis{ grid-template-columns:repeat(3,1fr); margin-bottom:12px; }
-    #seg-panel{ position:static; margin:0 0 7px; padding-bottom:13px; }
-    .filterbar{ top:var(--sticky-head-h); }
-    .table-head-wrap{ top:calc(var(--sticky-head-h) + var(--filterbar-h)); }
+    #seg-panel{ position:static; margin:0 0 7px; padding-bottom:10px; }
+    .filterbar{ top:calc(var(--sticky-head-h) + 5px); }
+    .table-head-wrap{ top:calc(var(--sticky-head-h) + 5px + var(--filterbar-h)); }
 
     /* "Facturas a ingresar": en móvil se apila (título+botón arriba,
        píldoras debajo) — el estilo circular del botón ya viene de la
@@ -476,7 +480,7 @@
        línea que usa el modo escritorio. */
     .seg-head-row{ display:block; }
     .seg-head-top{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
-    .view-strip{ width:100%; margin-top:27px; order:initial; justify-content:flex-start; flex:none; }
+    .seg-head-row .view-strip{ width:100%; margin-top:10px; order:initial; justify-content:flex-start; flex:none; margin-left:0; }
     #seg-chev{ order:initial; }
     .panel-body{ margin-top:4px; }
 
@@ -496,7 +500,7 @@
     }
     .status-dropdown{
       display:none; flex-direction:column; align-items:stretch; gap:8px;
-      position:absolute; top:calc(100% + 8px); left:0; z-index:32;
+      position:absolute; top:calc(100% + 8px); right:0; z-index:32;
       background:var(--panel); border:1px solid var(--border); border-radius:8px;
       padding:10px; box-shadow:0 24px 46px -18px rgba(0,0,0,.7); min-width:220px;
     }
@@ -692,7 +696,6 @@
         <div class="view-strip" id="view-strip"></div>
       </div>
       <div class="panel-body">
-        <div class="seg-hint" id="seg-no-folios-hint" style="display:none;">Aún no hay folios registrados. Ve al bloque "Cargar archivos" y agrega el folio de cada factura para poder asignarlas aquí.</div>
         <div class="table-wrap">
           <table class="seg-table" id="seg-table">
             <thead>
@@ -1003,6 +1006,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     renderFolios();
     renderKPIs();
     renderSegmentador();
+    renderViewStrip();
   }
   document.getElementById('btn-add-folio').addEventListener('click', addFolio);
   document.getElementById('folio-input').addEventListener('keydown', (e) => {
@@ -1079,7 +1083,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
 
   function renderSegmentador(){
-    document.getElementById('seg-no-folios-hint').style.display = invoiceFolios.length ? 'none' : 'block';
+    // (el aviso de "sin folios" ahora se muestra en línea junto a la píldora TOC, ver renderViewStrip)
     const tbody = document.getElementById('seg-tbody');
     tbody.innerHTML = uniqueOCs.map(oc => {
       const st = ocStats(oc);
@@ -1129,7 +1133,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         (c.color ? '<span class="group-swatch" style="background:' + c.color + '"></span>' : '') +
         esc(c.label) + ' <span class="count">' + c.count + '</span>' +
       '</button>'
-    ).join('');
+    ).join('') + (invoiceFolios.length === 0
+      ? '<span class="seg-inline-hint">Aún no hay folios registrados. Ve al bloque "Cargar archivos" y agrega el folio de cada factura para poder asignarlas aquí.</span>'
+      : '');
 
     strip.querySelectorAll('.view-chip').forEach(btn => {
       btn.addEventListener('click', (e) => {
