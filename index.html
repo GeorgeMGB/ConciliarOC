@@ -248,6 +248,25 @@
   }
   .search-clear-btn:hover{ color:var(--text); border-color:var(--text-faint); }
 
+  /* Texto de apoyo del buscador con efecto carrusel, para poder leerlo
+     completo aunque el recuadro sea angosto (se oculta al escribir). */
+  .search-placeholder-carousel{
+    position:absolute; left:12px; right:66px; top:0; bottom:0;
+    overflow:hidden; pointer-events:none; display:flex; align-items:center;
+  }
+  .search-placeholder-carousel span{
+    display:inline-block; white-space:nowrap; color:var(--text-faint); font-size:13px;
+    animation:search-marquee 11s linear infinite;
+  }
+  .search-wrap.has-value .search-placeholder-carousel{ display:none; }
+  @keyframes search-marquee{
+    0%   { transform:translateX(100%); }
+    100% { transform:translateX(-100%); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .search-placeholder-carousel span{ animation:none; transform:translateX(0); }
+  }
+
   .status-menu-wrap{ display:contents; }
   .status-menu-btn{ display:none; }
   .status-dropdown{ display:contents; }
@@ -446,6 +465,10 @@
   }
   @media (max-width:720px){
     .shell{ padding:14px 14px 40px; }
+
+    /* Evita que iOS/Android hagan zoom automático al enfocar campos de
+       texto: el zoom se dispara cuando el font-size es menor a 16px. */
+    .search-input, .qty-input{ font-size:16px; }
 
     /* 1) Encabezado: solo eyebrow + h1; se ocultan descripción y meta */
     .brand p{ display:none; }
@@ -709,7 +732,8 @@
 
     <div class="filterbar">
       <div class="search-wrap">
-        <input class="search-input" id="search-input" type="text" placeholder="Buscar por SKU, descripción o No. Orden OC…">
+        <input class="search-input" id="search-input" type="text" placeholder="" aria-label="Buscar por SKU, descripción o No. Orden OC">
+        <div class="search-placeholder-carousel" id="search-placeholder" aria-hidden="true"><span>Buscar por SKU, descripción o No. Orden OC…</span></div>
         <button class="search-clear-btn" id="btn-clear-search" type="button">Borrar</button>
       </div>
       <div class="status-menu-wrap" id="status-menu-wrap">
@@ -1442,8 +1466,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     });
   });
 
+  function updateSearchPlaceholderVisibility(){
+    const input = document.getElementById('search-input');
+    document.querySelector('.search-wrap').classList.toggle('has-value', input.value.length > 0);
+  }
+
   document.getElementById('search-input').addEventListener('input', (e) => {
     searchTerm = e.target.value.trim();
+    updateSearchPlaceholderVisibility();
     renderMainTable();
   });
 
@@ -1451,6 +1481,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     const input = document.getElementById('search-input');
     input.value = '';
     searchTerm = '';
+    updateSearchPlaceholderVisibility();
     input.focus();
     renderMainTable();
   });
@@ -1511,6 +1542,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     statusFilters = new Set(['correcto','faltante','sobrante','no_encontrado_inv']);
     onlyMultiOC = false;
     document.getElementById('search-input').value = '';
+    document.querySelector('.search-wrap').classList.remove('has-value');
     document.getElementById('totals-search').value = '';
     document.querySelectorAll('.chip[data-status]').forEach(c => {
       c.classList.toggle('active', c.getAttribute('data-status') !== 'rep');
