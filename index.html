@@ -92,7 +92,7 @@
   .sticky-head{
     position:sticky; top:0; z-index:40;
     background:var(--bg);
-    padding-top:14px; padding-bottom:12px; margin-top:-14px;
+    padding-top:14px; padding-bottom:17px; margin-top:-14px;
     box-shadow:0 14px 22px -18px rgba(0,0,0,.65);
   }
 
@@ -196,7 +196,7 @@
   }
   #seg-chev svg{ width:12px; height:12px; display:block; }
   #seg-panel{
-    position:sticky; top:calc(var(--sticky-head-h) + 5px); z-index:32; margin:0;
+    position:sticky; top:var(--sticky-head-h); z-index:32; margin:0;
     box-shadow:0 14px 22px -18px rgba(0,0,0,.65);
   }
 
@@ -230,7 +230,7 @@
   /* ---------- filter bar ---------- */
   .filterbar{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + 5px); z-index:26;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h)); z-index:26;
     background:var(--bg); padding:11px 0 13px; margin:0;
     border-bottom:1px solid var(--border-soft);
   }
@@ -321,7 +321,7 @@
      de búsqueda / estado / exportación — así nunca queda atrapado
      dentro de un contexto de scroll que rompa su posición fija. */
   .table-head-wrap{
-    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + var(--filterbar-h) + 5px); z-index:20;
+    position:sticky; top:calc(var(--sticky-head-h) + var(--seg-panel-h) + var(--filterbar-h)); z-index:20;
     overflow-x:hidden; overflow-y:hidden;
     border:1px solid var(--border); border-bottom:none; border-radius:var(--radius) var(--radius) 0 0;
     background:var(--panel-3);
@@ -476,7 +476,7 @@
 
     /* 2) Encabezado sigue en fila (alineado con el título), sticky, compacto */
     .topbar{ flex-direction:row; align-items:center; gap:8px; padding-bottom:10px; }
-    .sticky-head{ padding-bottom:7px; }
+    .sticky-head{ padding-bottom:12px; }
     .brand{ margin-left:8px; min-width:0; flex:1 1 auto; }
     .brand h1{ font-size:15.5px; line-height:1.25; }
     .brand-eyebrow{ font-size:8.5px; }
@@ -494,8 +494,8 @@
        anclados justo debajo del encabezado compacto. */
     .kpis{ grid-template-columns:repeat(3,1fr); margin-bottom:12px; }
     #seg-panel{ position:static; margin:0 0 7px; padding-bottom:10px; }
-    .filterbar{ top:calc(var(--sticky-head-h) + 5px); }
-    .table-head-wrap{ top:calc(var(--sticky-head-h) + 5px + var(--filterbar-h)); }
+    .filterbar{ top:var(--sticky-head-h); }
+    .table-head-wrap{ top:calc(var(--sticky-head-h) + var(--filterbar-h)); }
 
     /* "Facturas a ingresar": en móvil se apila (título+botón arriba,
        píldoras debajo) — el estilo circular del botón ya viene de la
@@ -1086,7 +1086,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       {n: counts.faltante, l:'Con faltante', cls:'faltante'},
       {n: counts.sobrante, l:'Con sobrante', cls:'sobrante'},
       {n: counts.no_encontrado_inv + counts.no_encontrado_oc, l:'No encontrados', cls:'noenc'},
-      {n: invoiceFolios.length, l:'Facturas a ingresar', cls:'facturas'},
+      {n: invoiceFolios.length, l:'Facturas', cls:'facturas'},
     ];
     document.getElementById('kpi-strip').innerHTML = kpis.map(k =>
       '<div class="kpi ' + k.cls + '"><div class="n">' + fmt(k.n) + '</div><div class="l">' + k.l + '</div></div>'
